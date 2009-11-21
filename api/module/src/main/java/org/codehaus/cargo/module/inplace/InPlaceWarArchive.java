@@ -1,161 +1,77 @@
-// Decompiled by Jad v1.5.8g. Copyright 2001 Pavel Kouznetsov.
-// Jad home page: http://www.kpdus.com/jad.html
-// Decompiler options: packimports(3) 
-// Source File Name:   InPlaceWarArchive.java
-
+/*
+ * ========================================================================
+ *
+ * Copyright 2003-2004 The Apache Software Foundation. Code from this file
+ * was originally imported from the Jakarta Cactus project.
+ *
+ * Copyright 2004-2006 Vincent Massol.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * ========================================================================
+ */
 package org.codehaus.cargo.module.inplace;
 
-import java.io.*;
-
-import org.codehaus.cargo.module.webapp.*;
-import org.codehaus.cargo.module.webapp.jboss.JBossWebXmlIo;
-import org.codehaus.cargo.module.webapp.orion.OrionWebXmlIo;
-import org.codehaus.cargo.module.webapp.resin.ResinWebXmlIo;
-import org.codehaus.cargo.module.webapp.weblogic.WeblogicXmlIo;
-import org.codehaus.cargo.module.webapp.websphere.IbmWebBndXmiIo;
-import org.codehaus.cargo.util.CargoException;
+import org.codehaus.cargo.module.webapp.WarArchive;
+import org.codehaus.cargo.module.webapp.WebXml;
+import org.codehaus.cargo.module.webapp.WebXmlIo;
 import org.jdom.JDOMException;
 
-// Referenced classes of package org.codehaus.cargo.module.inplace:
-//            InPlaceJarArchive
+import java.io.File;
+import java.io.IOException;
 
+/**
+ * @version $Id$
+ */
 public class InPlaceWarArchive extends InPlaceJarArchive
-        implements WarArchive {
+        implements WarArchive
+{
 
-    public InPlaceWarArchive(File rootDir) {
+    /**
+     * Web XML.
+     */
+    private WebXml webXml;
+
+    public InPlaceWarArchive(File rootDir)
+    {
         super(rootDir);
     }
 
-    public WebXml getWebXml()
-            throws IOException, JDOMException {
-        InputStream in;
-        if (webXml != null)
-            break MISSING_BLOCK_LABEL_117;
-        in = null;
-        try {
-            in = getResource("WEB-INF/web.xml");
-            if (in != null)
-                webXml = WebXmlIo.parseWebXml(in, null);
-            else
-                webXml = new WebXml();
+    /**
+     * {@inheritDoc}
+     *
+     * @throws JDOMException
+     * @see WarArchive#getWebXml()
+     */
+    public final WebXml getWebXml()
+        throws IOException, JDOMException
+    {
+        if (this.webXml == null)
+        {
+            this.webXml = WebXmlIo.getWebXml(this);
         }
-        catch (Exception ex) {
-            throw new CargoException("Error parsing the web.xml file in " + getFile(), ex);
-        }
-        if (in != null)
-            in.close();
-        break MISSING_BLOCK_LABEL_97;
-        Exception exception;
-        exception;
-        if (in != null)
-            in.close();
-        throw exception;
-        addWeblogicDescriptor();
-        addOracleDescriptor();
-        addWebsphereDescriptor();
-        addResinDescriptor();
-        addJBossDescriptor();
-        return webXml;
+        return this.webXml;
     }
 
+    /**
+     * @param file1 file
+     * @throws IOException error
+     * @throws JDOMException error
+     */
     public void store(File file1)
-            throws IOException, JDOMException {
+        throws IOException, JDOMException
+    {
     }
 
-    private void addWeblogicDescriptor()
-            throws IOException, JDOMException {
-        InputStream in = null;
-        in = getResource("WEB-INF/weblogic.xml");
-        if (in != null) {
-            org.codehaus.cargo.module.webapp.weblogic.WeblogicXml descr = WeblogicXmlIo.parseWeblogicXml(in);
-            if (descr != null)
-                webXml.addVendorDescriptor(descr);
-        }
-        if (in != null)
-            in.close();
-        break MISSING_BLOCK_LABEL_52;
-        Exception exception;
-        exception;
-        if (in != null)
-            in.close();
-        throw exception;
-    }
 
-    private void addResinDescriptor()
-            throws IOException, JDOMException {
-        InputStream in = null;
-        in = getResource("WEB-INF/resin-web.xml");
-        if (in != null) {
-            org.codehaus.cargo.module.webapp.resin.ResinWebXml descr = ResinWebXmlIo.parseResinXml(in);
-            if (descr != null)
-                webXml.addVendorDescriptor(descr);
-        }
-        if (in != null)
-            in.close();
-        break MISSING_BLOCK_LABEL_52;
-        Exception exception;
-        exception;
-        if (in != null)
-            in.close();
-        throw exception;
-    }
-
-    private void addOracleDescriptor()
-            throws IOException, JDOMException {
-        InputStream in = null;
-        in = getResource("WEB-INF/orion-web.xml");
-        if (in != null) {
-            org.codehaus.cargo.module.webapp.orion.OrionWebXml descr = OrionWebXmlIo.parseOrionXml(in);
-            if (descr != null)
-                webXml.addVendorDescriptor(descr);
-        }
-        if (in != null)
-            in.close();
-        break MISSING_BLOCK_LABEL_52;
-        Exception exception;
-        exception;
-        if (in != null)
-            in.close();
-        throw exception;
-    }
-
-    private void addWebsphereDescriptor()
-            throws IOException, JDOMException {
-        InputStream in = null;
-        in = getResource("WEB-INF/ibm-web-bnd.xmi");
-        if (in != null) {
-            org.codehaus.cargo.module.webapp.websphere.IbmWebBndXmi descr = IbmWebBndXmiIo.parseIbmWebBndXmi(in);
-            if (descr != null)
-                webXml.addVendorDescriptor(descr);
-        }
-        if (in != null)
-            in.close();
-        break MISSING_BLOCK_LABEL_52;
-        Exception exception;
-        exception;
-        if (in != null)
-            in.close();
-        throw exception;
-    }
-
-    private void addJBossDescriptor()
-            throws IOException, JDOMException {
-        InputStream in = null;
-        in = getResource("WEB-INF/jboss-web.xml");
-        if (in != null) {
-            org.codehaus.cargo.module.webapp.jboss.JBossWebXml descr = JBossWebXmlIo.parseJBossWebXml(in);
-            if (descr != null)
-                webXml.addVendorDescriptor(descr);
-        }
-        if (in != null)
-            in.close();
-        break MISSING_BLOCK_LABEL_52;
-        Exception exception;
-        exception;
-        if (in != null)
-            in.close();
-        throw exception;
-    }
-
-    private WebXml webXml;
 }

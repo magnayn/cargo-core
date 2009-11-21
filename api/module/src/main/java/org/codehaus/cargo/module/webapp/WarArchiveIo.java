@@ -22,7 +22,9 @@ package org.codehaus.cargo.module.webapp;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-
+import org.codehaus.cargo.module.inplace.InPlaceWarArchive;
+import org.codehaus.cargo.module.opt.TZArchiveImplementation;
+import org.codehaus.cargo.module.opt.TZWarArchive;
 /**
  * 
  * Utility IO class for constructing War Archives. Use this class in preference
@@ -52,7 +54,8 @@ public class WarArchiveIo
      */
     public static WarArchive open(String file) throws IOException
     {
-        return new DefaultWarArchive(file);
+        File theFile = new File(file);
+        return open(theFile);
     }
 
     /**
@@ -76,6 +79,11 @@ public class WarArchiveIo
      */
     public static WarArchive open(File f) throws IOException
     {
-        return new DefaultWarArchive(f.getAbsolutePath());
+        if(f.isDirectory())
+            return new InPlaceWarArchive(f);
+        if(TZArchiveImplementation.getInstance().shouldUse())
+            return new TZWarArchive(f);
+        else        
+            return new DefaultWarArchive(f.getAbsolutePath());
     }
 }

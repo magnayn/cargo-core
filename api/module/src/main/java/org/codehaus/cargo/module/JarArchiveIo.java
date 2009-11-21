@@ -22,6 +22,8 @@ package org.codehaus.cargo.module;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import org.codehaus.cargo.module.opt.TZArchiveImplementation;
+import org.codehaus.cargo.module.opt.TZJarArchive;
 
 /**
  * 
@@ -51,7 +53,14 @@ public class JarArchiveIo
      */
     public static JarArchive open(String file) throws IOException
     {
-        return new DefaultJarArchive(file);
+        if (TZArchiveImplementation.getInstance().shouldUse())
+        {
+            return new TZJarArchive(new File(file));
+        }
+        else
+        {
+            return new DefaultJarArchive(file);
+        }
     }
 
     /**
@@ -79,7 +88,14 @@ public class JarArchiveIo
      */
     public static JarArchive open(File f) throws IOException
     {
-        return new DefaultJarArchive(f.getAbsolutePath());
+        if (TZArchiveImplementation.getInstance().shouldUse())
+        {
+            return new TZJarArchive(f);
+        }
+        else
+        {
+            return new DefaultJarArchive(f.getAbsolutePath());
+        }
     }
     
 }

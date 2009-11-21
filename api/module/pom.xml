@@ -57,6 +57,13 @@
       <artifactId>jaxen</artifactId>
       <version>1.0-FCS</version>
     </dependency>
+    <!--  TrueZip can read/write inside ZIP format files directly. -->
+    <dependency>
+      <groupId>de.schlichtherle.io</groupId>
+      <artifactId>truezip</artifactId>
+      <version>6.6</version>
+      <optional>true</optional>
+    </dependency>
     <dependency>
       <groupId>org.codehaus.cargo</groupId>
       <artifactId>cargo-core-api-util</artifactId>

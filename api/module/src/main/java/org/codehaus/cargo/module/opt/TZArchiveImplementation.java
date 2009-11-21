@@ -1,42 +1,97 @@
-// Decompiled by Jad v1.5.8g. Copyright 2001 Pavel Kouznetsov.
-// Jad home page: http://www.kpdus.com/jad.html
-// Decompiler options: packimports(3) 
-// Source File Name:   TZArchiveImplementation.java
-
+/*
+ * ========================================================================
+ *
+ * Copyright 2003-2004 The Apache Software Foundation. Code from this file
+ * was originally imported from the Jakarta Cactus project.
+ *
+ * Copyright 2004-2006 Vincent Massol.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * ========================================================================
+ */
 package org.codehaus.cargo.module.opt;
 
 
-public class TZArchiveImplementation {
+/**
+ * @version $Id$
+ */
+public final class TZArchiveImplementation
+{
 
-    public static TZArchiveImplementation getInstance() {
-        return INSTANCE;
+    /**
+     * @return instance
+     */
+    public static TZArchiveImplementation getInstance()
+    {
+        return _INSTANCE;
     }
 
-    private TZArchiveImplementation() {
+    /**
+     *
+     */
+    private TZArchiveImplementation()
+    {
         isAvailable = false;
         isEnabled = false;
-        try {
+        try
+        {
             Class cls = Class.forName("de.schlichtherle.io.File");
             isAvailable = true;
         }
-        catch (Exception ex) {
+        catch (Exception ex)
+        {
+            // Acceptable
         }
     }
 
-    public boolean isEnabled() {
+    /**
+     * @return if enabled
+     */
+    public boolean isEnabled()
+    {
         return isEnabled;
     }
 
-    public void setEnabled(boolean isEnabled) {
+    /**
+     * @param isEnabled enablement
+     */
+    public void setEnabled(boolean isEnabled)
+    {
         this.isEnabled = isEnabled;
     }
 
-    public boolean shouldUse() {
+    /**
+     * @return should use
+     */
+    public boolean shouldUse()
+    {
         return isAvailable && isEnabled;
     }
 
-    private static TZArchiveImplementation INSTANCE = new TZArchiveImplementation();
+    /**
+     *
+     */
+    private static TZArchiveImplementation _INSTANCE = new TZArchiveImplementation();
+
+    /**
+     *
+     */
     private boolean isAvailable;
+
+    /**
+     *
+     */
     private boolean isEnabled;
 
 }

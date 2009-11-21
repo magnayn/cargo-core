@@ -27,8 +27,20 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.codehaus.cargo.module.AbstractDescriptor;
 import org.codehaus.cargo.module.AbstractDescriptorIo;
 import org.codehaus.cargo.module.DescriptorType;
+import org.codehaus.cargo.module.webapp.jboss.JBossWebXml;
+import org.codehaus.cargo.module.webapp.jboss.JBossWebXmlIo;
+import org.codehaus.cargo.module.webapp.orion.OrionWebXml;
+import org.codehaus.cargo.module.webapp.orion.OrionWebXmlIo;
+import org.codehaus.cargo.module.webapp.resin.ResinWebXml;
+import org.codehaus.cargo.module.webapp.resin.ResinWebXmlIo;
+import org.codehaus.cargo.module.webapp.weblogic.WeblogicXml;
+import org.codehaus.cargo.module.webapp.weblogic.WeblogicXmlIo;
+import org.codehaus.cargo.module.webapp.websphere.IbmWebBndXmi;
+import org.codehaus.cargo.module.webapp.websphere.IbmWebBndXmiIo;
+import org.codehaus.cargo.util.CargoException;
 import org.jdom.DocType;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -127,6 +139,71 @@ public final class WebXmlIo extends AbstractDescriptorIo
         return (WebXml) document;
     }
 
+    public static WebXml getWebXml(WarArchive warArchive) throws IOException, JDOMException
+    {
+        WebXml webXml = null;
+        InputStream in = null;
+        try
+        {
+            in = warArchive.getResource("WEB-INF/web.xml");
+            if (in != null)
+            {
+                webXml = WebXmlIo.parseWebXml(in, null);
+            }
+            else
+            {
+                // need to create something, as otherwise vendor descriptors
+                // will fail
+                webXml = new WebXml();
+            }
+        }
+        catch (Exception ex)
+        {
+            throw new CargoException("Error parsing the web.xml file ", ex);
+        }
+        finally
+        {
+            if (in != null)
+            {
+                in.close();
+            }
+        }
+        VendorWebAppDescriptor descriptor;
+
+        descriptor = getWeblogicDescriptor(warArchive);
+        if (descriptor != null)
+        {
+            webXml.addVendorDescriptor(descriptor);
+        }
+
+        descriptor = getOracleDescriptor(warArchive);
+        if (descriptor != null)
+        {
+            webXml.addVendorDescriptor(descriptor);
+        }
+
+        descriptor = getWebsphereDescriptor(warArchive);
+        if (descriptor != null)
+        {
+            webXml.addVendorDescriptor(descriptor);
+        }
+
+        descriptor = getResinDescriptor(warArchive);
+        if (descriptor != null)
+        {
+            webXml.addVendorDescriptor(descriptor);
+        }
+
+        descriptor = getJBossDescriptor(warArchive);
+        if (descriptor != null)
+        {
+            webXml.addVendorDescriptor(descriptor);
+        }
+
+        return webXml;
+
+    }
+
     /**
      * Parses a deployment descriptor stored in a regular file.
      *
@@ -190,5 +267,168 @@ public final class WebXmlIo extends AbstractDescriptorIo
         
     }
     
-    
+    /**
+     * Associates the webXml with a weblogic.xml if one is present in the war.
+     * 
+     * @throws IOException If there was a problem reading the  deployment descriptor in the WAR
+     * @throws JDOMException If the deployment descriptor of the WAR could not be parsed
+     * @return Descriptor
+     * @param warArchive archive
+     */
+    private static WeblogicXml getWeblogicDescriptor(WarArchive warArchive)
+        throws IOException, JDOMException
+    {
+        InputStream in = null;
+        try
+        {
+            in = warArchive.getResource("WEB-INF/weblogic.xml");
+            if (in != null)
+            {
+                WeblogicXml descr = WeblogicXmlIo.parseWeblogicXml(in);
+                if (descr != null)
+                {
+                    return descr;
+                }
+            }
+        }
+        finally
+        {
+            if (in != null)
+            {
+                in.close();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Associates the webXml with a resin-web if one is present in the war.
+     *
+     * @throws IOException If there was a problem reading the  deployment descriptor in the WAR
+     * @throws JDOMException If the deployment descriptor of the WAR could not be parsed
+     * @return Descriptor
+     */
+    private static ResinWebXml getResinDescriptor(WarArchive warArchive)
+        throws IOException, JDOMException
+    {
+        InputStream in = null;
+        try
+        {
+            in = warArchive.getResource("WEB-INF/resin-web.xml");
+            if (in != null)
+            {
+                ResinWebXml descr = ResinWebXmlIo.parseResinXml(in);
+                if (descr != null)
+                {
+                    return descr;
+                }
+            }
+        }
+        finally
+        {
+            if (in != null)
+            {
+                in.close();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Associates the webXml with a orion-web.xml if one is present in the war.
+     *
+     * @throws IOException If there was a problem reading the  deployment descriptor in the WAR
+     * @throws JDOMException If the deployment descriptor of the WAR could not be parsed
+     */
+    private static OrionWebXml getOracleDescriptor(WarArchive warArchive)
+        throws IOException, JDOMException
+    {
+        InputStream in = null;
+        try
+        {
+            in = warArchive.getResource("WEB-INF/orion-web.xml");
+            if (in != null)
+            {
+                OrionWebXml descr = OrionWebXmlIo.parseOrionXml(in);
+                if (descr != null)
+                {
+                    return descr;
+                }
+            }
+        }
+        finally
+        {
+            if (in != null)
+            {
+                in.close();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Associates the webXml with a ibm-web-bnd.xmi, if one is present in the war.
+     *
+     * @throws IOException If there was a problem reading the  deployment descriptor in the WAR
+     * @throws JDOMException If the deployment descriptor of the WAR could not be parsed
+     * @return Descriptor
+     */
+    private static IbmWebBndXmi getWebsphereDescriptor(WarArchive warArchive)
+        throws IOException, JDOMException
+    {
+        InputStream in = null;
+        try
+        {
+            in = warArchive.getResource("WEB-INF/ibm-web-bnd.xmi");
+            if (in != null)
+            {
+                IbmWebBndXmi descr = IbmWebBndXmiIo.parseIbmWebBndXmi(in);
+                if (descr != null)
+                {
+                    return descr;
+                }
+            }
+        }
+        finally
+        {
+            if (in != null)
+            {
+                in.close();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Associates the webXml with a jboss-web.xml, if one is present in the war.
+     *
+     * @throws IOException If there was a problem reading the  deployment descriptor in the WAR
+     * @throws JDOMException If the deployment descriptor of the WAR could not be parsed
+     * @return Descriptor
+     */
+    private static JBossWebXml getJBossDescriptor(WarArchive warArchive)
+        throws IOException, JDOMException
+    {
+        InputStream in = null;
+        try
+        {
+            in = warArchive.getResource("WEB-INF/jboss-web.xml");
+            if (in != null)
+            {
+                JBossWebXml descr = JBossWebXmlIo.parseJBossWebXml(in);
+                if (descr != null)
+                {
+                    return descr;
+                }
+            }
+        }
+        finally
+        {
+            if (in != null)
+            {
+                in.close();
+            }
+        }
+        return null;
+    }
 }
